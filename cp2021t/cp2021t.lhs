@@ -1036,12 +1036,24 @@ g_eval_exp n (Right (Right (Right (E, a)))) = expd a
 clean X = (Left ())
 clean (N x) = (Right (Left x))
 clean (Bin Sum expe expd) = (Right (Right (Left (Sum, (expe,expd)))))
+clean (Bin Product (N 0) expd) = Right (Left 0)
+clean (Bin Product expe (N 0)) = Right (Left 0)
 clean (Bin Product expe expd) = (Right (Right (Left (Product, (expe,expd)))))
 clean (Un Negate exp) = (Right (Right (Right (Negate, exp))))
 clean (Un E exp) = (Right (Right (Right (E, exp))))
 ---
-gopt a (Left ()) = 1
-gopt a (Right (Left n)) = 0
+
+gopt a = g_eval_exp a
+{-
+gopt a (Left ()) = a
+gopt a (Right (Left n)) = n
+gopt a (Right (Right (Left (Sum, (x,y))))) = x + y
+gopt a (Right (Right (Left (Product, (x,y))))) = x * y
+gopt a (Right (Right (Right (Negate, x)))) = -x
+gopt a (Right (Right (Right (E, x)))) = expd x
+-}
+
+
 \end{code}
 
 \begin{code}
