@@ -1081,9 +1081,11 @@ ad_gen f (Right (Right (Right (E, (a,b))))) = (Un E a, expd b)
 \subsection*{Problema 2}
 Definir
 \begin{code}
-loop = undefined
-inic = undefined
-prj = undefined
+divPar (a,b) = div a b
+auxDoisN = (split mul (succ.p2) . (split mul (succ.p2)))
+loop = split (auxDoisN.p1) ((split mul (succ.p2)).p2)
+inic = ((1,1),(1,1))
+prj = divPar.(split (p1.p1) (mul.(split p1 mul).p2))
 \end{code}
 por forma a que
 \begin{code}
