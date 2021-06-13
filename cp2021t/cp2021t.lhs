@@ -1015,6 +1015,7 @@ sd = p2 . cataExpAr sd_gen
 
 ad :: Floating a => a -> ExpAr a -> a
 ad v = p2 . cataExpAr (ad_gen v)
+
 \end{code}
 Definir:
 
@@ -1098,6 +1099,32 @@ Apresentar de seguida a justificação da solução encontrada.
 \subsection*{Problema 3}
 
 \begin{code}
+
+testeCalcLine :: NPoint -> (NPoint -> OverTime NPoint)
+testeCalcLine [] = const nil
+testeCalcLine(p:x) = curry g p (testeCalcLine x) where
+   g :: (Rational, NPoint -> OverTime NPoint) -> (NPoint -> OverTime NPoint)
+   g (d,f) l = case l of
+       []     -> nil
+       (x:xs) -> \z -> concat $ (sequenceA [singl . linear1d d x, f xs]) z
+
+testeDeCasteljau :: [NPoint] -> OverTime NPoint
+testeDeCasteljau [] = nil
+testeDeCasteljau [p] = const p
+testeDeCasteljau l = \pt -> (testeCalcLine (p pt) (q pt)) pt where
+  p = testeDeCasteljau (init l)
+  q = testeDeCasteljau (tail l)
+
+
+auxSP :: NPoint -> Rational -> NPoint  
+auxSP [] _ = []
+auxSP (h:s) a = (h+a):(auxSP s a)
+
+{-somaPontos :: NPoint -> (Rational -> NPoint) 
+somaPontos = cataList g where
+  g (Left ()) = auxSP []
+  g (Right (a, b)) = auxSP (a:b) -}
+
 calcLine :: NPoint -> (NPoint -> OverTime NPoint)
 calcLine = cataList h where
    h = undefined
