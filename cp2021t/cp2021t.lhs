@@ -1073,10 +1073,19 @@ ad_gen :: Floating  a =>
     a -> Either () (Either a (Either (BinOp, ((ExpAr a,a), (ExpAr a,a))) (UnOp, (ExpAr a,a)))) -> (ExpAr a,a)
 ad_gen f (Left ()) = (X, 1)
 ad_gen f (Right (Left b)) = (N b, 0)
-ad_gen f (Right (Right (Left (Sum, ((a,b),(c,d)))))) = (Bin Sum (a) (c),b+d)
-ad_gen f (Right (Right (Left (Product, ((a,b),(c,d)))))) = (Bin Product (a) (c), b*d)
+ad_gen f (Right (Right (Left (Sum, ((a,b),(c,d)))))) = (Bin Sum (a) (c), b+d)
+ad_gen f (Right (Right (Left (Product, ((a,b),(c,d)))))) = (Bin Product (a) (c), (calcPoint f a * d) + (b * calcPoint f c))
 ad_gen f (Right (Right (Right (Negate, (a,b))))) = (Un Negate a, -b)
-ad_gen f (Right (Right (Right (E, (a,b))))) = (Un E a, expd b)
+ad_gen f (Right (Right (Right (E, (a,b))))) = (Un E a, expd(calcPoint f a) * b)
+
+calcPoint :: Floating a => a -> ExpAr a -> a
+calcPoint f X = f
+calcPoint f (N a) = a
+calcPoint f (Bin Sum a b) = calcPoint f a + calcPoint f b
+calcPoint f (Bin Product a b) = calcPoint f a * calcPoint f b
+calcPoint f (Un Negate a) = - calcPoint f a
+calcPoint f (Un E a) = expd (calcPoint f a)
+
 \end{code}
 
 \subsection*{Problema 2}
@@ -1145,7 +1154,9 @@ avg = p1.avg_aux
 \end{code}
 
 \begin{code}
-avg_aux = undefined
+avg_aux = undefined 
+
+
 \end{code}
 Solução para árvores de tipo \LTree:
 \begin{code}
