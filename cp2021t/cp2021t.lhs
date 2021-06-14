@@ -1123,12 +1123,26 @@ hyloAlgForm = undefined
 
 Solução para listas não vazias:
 \begin{code}
-avg = p1.avg_aux
+avg = p1. (avg_aux)
 \end{code}
 
 \begin{code}
-avg_aux = undefined 
+-- avg = < avg , length>
+avg_aux = split (avg_cata) (len_cata) 
 
+
+-- length = (|[0,add]|)
+len_cata = cataList (either zero (succ.p2))
+
+-- sum = (|[0,succ.p2]|)
+sum_cata = cataList (either zero add)
+
+-- avg = ratio. < sum, length>
+avg_cata = ratio.(split sum_cata len_cata)
+          where ratio (n,d) = div n d
+ 
+
+func a = 0
 
 \end{code}
 Solução para árvores de tipo \LTree:
