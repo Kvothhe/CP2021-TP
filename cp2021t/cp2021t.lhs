@@ -703,7 +703,6 @@ A média de uma lista não vazia e de uma \LTree\ com os mesmos elementos coinci
 a menos de um erro de 0.1 milésimas:
 
 \begin{code}
-prop_avg :: Ord a => [a] -> Property
 prop_avg = nonempty .==>. diff .<=. const 0.000001 where
    diff l = avg l - (avgLTree . genLTree) l
    genLTree = anaLTree lsplit
@@ -1117,15 +1116,6 @@ calcLine = cataList h where
        (x:xs) -> \z -> concat $ (sequenceA [singl . linear1d d x, f xs]) z
 
 
-
-tdeCasteljau :: [NPoint] -> OverTime NPoint
-tdeCasteljau [] = nil
-tdeCasteljau [p] = const p
-tdeCasteljau l = \pt -> (calcLine (p pt) (q pt)) pt where
-  p = tdeCasteljau (init l)
-  q = tdeCasteljau (tail l)
-
-
 g1 [] = nil
 g1 [p] = const p
 
@@ -1151,18 +1141,13 @@ avg = p1. (avg_aux)
 
 \begin{code}
 -- avg = < avg , length>
-avg_aux = split (avg_cata) (len_cata) 
+avg_aux = (ratio >< id).cataList avg_len_g
 
+avg_len_g = either (split (split (const 0) (const 0)) (const 0)) (split (split (addg.(id >< p1). (id >< p1)) (succ.p2.p1.p2)) (succ.p2.p2))
 
--- length = (|[0,add]|)
-len_cata = cataList (either zero (succ.p2))
+addg(a,b) = a + b
 
--- sum = (|[0,succ.p2]|)
-sum_cata = cataList (either zero add)
-
--- avg = ratio. < sum, length>
-avg_cata = ratio.(split sum_cata len_cata)
-          where ratio (n,d) = div n d
+ratio (n,d) = n/d
  
 
 func a = 0
