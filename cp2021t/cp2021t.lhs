@@ -1044,14 +1044,6 @@ clean (Un E exp) = (Right (Right (Right (E, exp))))
 ---
 
 gopt a = g_eval_exp a
-{-
-gopt a (Left ()) = a
-gopt a (Right (Left n)) = n
-gopt a (Right (Right (Left (Sum, (x,y))))) = x + y
-gopt a (Right (Right (Left (Product, (x,y))))) = x * y
-gopt a (Right (Right (Right (Negate, x)))) = -x
-gopt a (Right (Right (Right (E, x)))) = expd x
--}
 
 
 \end{code}
@@ -1148,15 +1140,27 @@ avg_len_g = either (split (split (const 0) (const 0)) (const 0)) (split (split (
 addg(a,b) = a + b
 
 ratio (n,d) = n/d
- 
 
 func a = 0
 
 \end{code}
 Solução para árvores de tipo \LTree:
 \begin{code}
-avgLTree = p1.cataLTree gene where
-   gene = undefined
+-- avgLTree funcional mas a função foi alterada 
+avgLTree = ratio.p1.cataLTree gene where
+   gene = (gavg >< glen) .  (split (recLTree p1) (recLTree p2))
+
+gavg = split ((either prop soma).(recLTree p1)) ((either (const 1) addg).(recLTree p2)) where
+    soma(a,b) = a + b
+    prop a = a
+
+-- Right (Left 1,Left 2)
+gsum = either prop soma where
+ soma(a,b) = a + b
+ prop a = a
+
+glen = either one add 
+
 \end{code}
 
 \subsection*{Problema 5}
