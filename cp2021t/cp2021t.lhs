@@ -1108,42 +1108,38 @@ Apresentar de seguida a justificação da solução encontrada.
 \subsection*{Problema 3}
 
 \begin{code}
-
-testeCalcLine :: NPoint -> (NPoint -> OverTime NPoint)
-testeCalcLine [] = const nil
-testeCalcLine(p:x) = curry g p (testeCalcLine x) where
-   g :: (Rational, NPoint -> OverTime NPoint) -> (NPoint -> OverTime NPoint)
+-- [P0-tP0 +tP1,....]
+calcLine :: NPoint -> (NPoint -> OverTime NPoint)
+calcLine = cataList h where
+   h = either (const (const nil)) g
    g (d,f) l = case l of
        []     -> nil
        (x:xs) -> \z -> concat $ (sequenceA [singl . linear1d d x, f xs]) z
 
-testeDeCasteljau :: [NPoint] -> OverTime NPoint
-testeDeCasteljau [] = nil
-testeDeCasteljau [p] = const p
-testeDeCasteljau l = \pt -> (testeCalcLine (p pt) (q pt)) pt where
-  p = testeDeCasteljau (init l)
-  q = testeDeCasteljau (tail l)
 
 
-auxSP :: NPoint -> Rational -> NPoint  
-auxSP [] _ = []
-auxSP (h:s) a = (h+a):(auxSP s a)
+tdeCasteljau :: [NPoint] -> OverTime NPoint
+tdeCasteljau [] = nil
+tdeCasteljau [p] = const p
+tdeCasteljau l = \pt -> (calcLine (p pt) (q pt)) pt where
+  p = tdeCasteljau (init l)
+  q = tdeCasteljau (tail l)
 
-{-somaPontos :: NPoint -> (Rational -> NPoint) 
-somaPontos = cataList g where
-  g (Left ()) = auxSP []
-  g (Right (a, b)) = auxSP (a:b) -}
 
-calcLine :: NPoint -> (NPoint -> OverTime NPoint)
-calcLine = cataList h where
-   h = undefined
+g1 [] = nil
+g1 [p] = const p
+
+g2 l = \pt -> (calcLine ((fst l) pt) ((snd l) pt)) pt
 
 deCasteljau :: [NPoint] -> OverTime NPoint
 deCasteljau = hyloAlgForm alg coalg where
-   coalg = undefined
-   alg = undefined
+   coalg [] = i1 []
+   coalg [a] = i1 [a]
+   coalg l = i2 (split init tail l )
+   alg = either g1 g2 
 
-hyloAlgForm = undefined
+hyloAlgForm = hyloLTree
+
 \end{code}
 
 \subsection*{Problema 4}
